@@ -1,11 +1,31 @@
-<?php 
+<?php
+namespace Controller;
 
-class IndexController{
-    public function __construct(){
+use RESTfulPHP\Controller;
+use Model\UserModel;
 
+class IndexController extends Controller
+{
+
+    public function get()
+    {
+        $user = new UserModel();
+        $user->getInfo(1);
     }
-    public function index(){
-        echo 'run';
+
+    public function put()
+    {
+        echo 'put';
+    }
+
+    public function delete()
+    {
+        echo 'delete';
+    }
+
+    public function post()
+    {
+        echo 'post';
     }
 }
 ?>

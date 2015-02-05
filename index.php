@@ -1,5 +1,5 @@
 <?php 
-define('APP_PATH', realpath('./Application') . '/');
-include_once 'RESTful/RESTful.php';
+define('APP_PATH', './Application/');
+include_once 'RESTfulPHP/RESTfulPHP.php';
 
 ?>
