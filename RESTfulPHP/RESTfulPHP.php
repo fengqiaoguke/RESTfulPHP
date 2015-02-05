@@ -40,7 +40,7 @@ class RESTfulPHP
         }
     }
 
-    public function json($data, $status, $message)
+    public static function json($data, $status, $message)
     {
         $_data['status'] = $status ? true : false;
         $_data['message'] = $message;
@@ -51,6 +51,7 @@ class RESTfulPHP
     public static function error($message)
     {
         echo self::json(NULL, false, $message);
+        exit();
     }
 
     public static function autoload($class)

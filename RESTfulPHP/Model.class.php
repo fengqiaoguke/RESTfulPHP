@@ -10,7 +10,11 @@ class Model extends \PDO
         if (! $conf = parse_ini_file($confPath, true)) {
             \RESTfulPHP::error('Unable to open ' . $confPath . '.');
         }
-        parent::__construct($conf['database']['dsn'], $conf['database']['user'], $conf['database']['pass']);
+        try {
+            parent::__construct($conf['database']['dsn'], $conf['database']['user'], $conf['database']['pass']);
+        } catch (\Exception $e) {
+            \RESTfulPHP::error("数据库链接失败:".$e->getMessage());
+        }
         $this->conf = $conf;
         $this->_where = "";
         $this->_field = "*";
@@ -30,19 +34,25 @@ class Model extends \PDO
         return $result;
     }
 
-    protected function cache($key, $value = NULL, $time = NULL)
+    protected function cache($key, $value = "", $time = 300)
     {
-        if(!$this->conf["memcache"]["host"]){
+        if (! $this->conf["memcache"]["host"]) {
             return false;
         }
-        $memcache = new \Memcache();
-        $memcache->connect($this->conf["memcache"]["host"], $this->conf["memcache"]["port"]);
-        
-        if($value){
-            $memcache->add($key, $value,false,$time);
-        }else{
-            $memcache->get($key);
+        $memcache = @new \Memcache();
+        $rs = @$memcache->connect($this->conf["memcache"]["host"], $this->conf["memcache"]["port"]);
+        if (! $rs) {
+            \RESTfulPHP::error("memcache链接失败!(如果要关闭memcache在config.ini把缓存host设为空)");
         }
+        
+        if ($value) {
+            $memcache->set($key, $value, false, $time);
+        } elseif ($value === null) {
+            $memcache->delete($key);
+        } else {
+            $value = $memcache->get($key);
+        }
+        return $value;
     }
 
     /**

@@ -11,7 +11,8 @@ class IndexController extends Controller
     {
         $data["name"] = "aaaa";
         $user = new UserModel();
-        $rs = $user->search(1);
+        $user->deleteInfo(1);
+        $rs = $user->getInfo(1);
         print_r($rs);
     }
 

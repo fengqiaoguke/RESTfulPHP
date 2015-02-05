@@ -24,10 +24,10 @@ class UserModel extends Model
     public function search($where = "1", $page = 1, $order = "id desc", $options = null)
     {
         $page = intval($page) < 1 ? 1 : $page;
-        $num = isset($options["num"]) ? intval($options["num"]) : 10;
+        $num = isset($options["num"]) ? intval($options["num"]) : 20;
         $start = ($page - 1) * $num;
         
-        $cacheTime = isset($options["expire"]) ? $options["expire"] : 600;
+        $cacheTime = isset($options["expire"]) ? $options["expire"] : 300;
         
         // 读取缓存
         $cacheName = md5($this->_table . "_where:" . $where . ";page:" . $page . ";order:" . $order . ";num:" . $num);
@@ -83,6 +83,7 @@ class UserModel extends Model
             return $result;
         }
         $result = $this->where("id=" . intval($id))->get();
+        $result['time'] = time();
         /*
          * 可以在这组合数据然后缓存起来,以后每次读取内容都走此方法;
          * 当内容更新时候会自动清缓存,否则等待缓存自动过期
