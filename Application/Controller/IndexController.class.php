@@ -9,8 +9,10 @@ class IndexController extends Controller
 
     public function get()
     {
+        $data["name"] = "aaaa";
         $user = new UserModel();
-        $user->getInfo(1);
+        $rs = $user->search(1);
+        print_r($rs);
     }
 
     public function put()
