@@ -1,16 +1,8 @@
 <?php 
 use RestPHP\RestPHP;
-//use Tools\Tools;
+error_reporting(E_ERROR | E_WARNING | E_PARSE);
 define('APP_PATH', './Application/');
 include_once 'RestPHP/RestPHP.php';
-//include_once '../~RESTful.min.php';
-
-//$app = new RestPHP();
-//$app->run();
-
-/*
-include_once 'RestPHP/Tools.class.php';
-$app = new Tools();
-$app->makeModel("blog");
-*/
+$app = new RestPHP();
+$app->run();
 ?>

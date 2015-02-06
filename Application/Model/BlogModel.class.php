@@ -1,49 +1,12 @@
 <?php
-namespace Tools;
-
-use RestPHP\RestPHP;
-
-include_once dirname(__FILE__).'/RestPHP.php';
-
-class Tools
-{
-
-    public function __construct()
-    {}
-
-    public function run()
-    {
-        echo 'tools';
-    }
-
-    /**
-     * 自动生成model
-     * 
-     * @param string $modelName
-     *            model名称
-     * @param string $table
-     *            对应数据库表名
-     * @return boolean
-     */
-    public function makeModel($modelName, $table = "")
-    {
-        if (! $modelName) {
-            RestPHP::error($modelName . '不存在,跳过!');
-            return false;
-        }
-        $modelName = strtolower($modelName);
-        $modelName = preg_replace('/_([a-z])/e', "strtoupper($1)", $modelName);
-        
-        $modelName = ucfirst($modelName);
-        $context = '<?php
 namespace Model;
 
 use RestPHP\Model;
 
-class ' . $modelName . 'Model extends Model
+class BlogModel extends Model
 {
 
-    protected $_table = "' . $table . '";
+    protected $_table = "";
 
     /**
      * 搜索
@@ -89,7 +52,11 @@ class ' . $modelName . 'Model extends Model
             $result["next_page"] = "";
         }
         if ($page > 1) {
-            $result["prev_page"] = $page - 1;
+            if ($page > $result["total_page"]) {
+                $result["prev_page"] = $result["total_page"] - 1;
+            } else {
+                $result["prev_page"] = $page - 1;
+            }
         } else {
             $result["prev_page"] = "";
         }
@@ -194,32 +161,4 @@ class ' . $modelName . 'Model extends Model
     }
 }
         
-    ';
-        $filepath = 'Model/' . $modelName . 'Model.class.php';
-        $this->_build($filepath, $context);
-    }
-
-    private function _build($filepath, $context)
-    {
-        $filepath = APP_PATH . '/' . $filepath;
-        $filepath = str_replace("//", "/", $filepath);
-        if (! file_exists(dirname($filepath))) {
-            $this->_mkdir(dirname($filepath));
-        }
-        if (file_exists($filepath)) {
-            RestPHP::error($filepath . '已存在,跳过!', 'error');
-        } else {
-            file_put_contents($filepath, $context);
-            RestPHP::error($filepath . '生成成功!', 'success'); 
-        }
-    }
-
-    private function _mkdir($dir, $mode = 0777)
-    {
-        if (is_dir($dir) || mkdir($dir, $mode))
-            return true;
-        if (! $this->_mkdir(dirname($dir), $mode))
-            return false;
-        return mkdir($dir, $mode);
-    }
-}
+    

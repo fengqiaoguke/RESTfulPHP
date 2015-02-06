@@ -1,8 +1,7 @@
 <?php
 namespace Model;
  
-
-use RESTfulPHP\Model;
+use RestPHP\Model;
 class UserModel extends Model
 {
 

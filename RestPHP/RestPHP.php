@@ -1,9 +1,6 @@
 <?php
 namespace RestPHP;
 
-
-error_reporting(E_ERROR | E_WARNING | E_PARSE);
-// error_reporting(0);
 class RestPHP
 {
 
@@ -72,6 +69,5 @@ class RestPHP
         }
     }
 }
-$app = new RestPHP();
-$app->run();
+
 ?>

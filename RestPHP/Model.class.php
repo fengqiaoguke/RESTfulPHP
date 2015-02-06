@@ -4,7 +4,7 @@ namespace RestPHP;
 class Model extends \PDO
 {
 
-    protected  function __construct()
+    public function __construct()
     {
         $confPath = APP_PATH . "Conf/config.ini";
         if (! $conf = parse_ini_file($confPath, true)) {
@@ -13,7 +13,7 @@ class Model extends \PDO
         try {
             parent::__construct($conf['database']['dsn'], $conf['database']['user'], $conf['database']['pass']);
         } catch (\Exception $e) {
-            RestPHP::error("数据库链接失败:" . $e->getMessage()); 
+            RestPHP::error("数据库链接失败:" . $e->getMessage());
         }
         $this->conf = $conf;
         $this->_where = "";
@@ -29,8 +29,12 @@ class Model extends \PDO
     protected function select($sql)
     {
         $query = $this->query($sql);
+        if(!$query){
+            RestPHP::error($sql." 查询出错!");
+        }
         $query->setFetchMode(\PDO::FETCH_ASSOC);
         $result = $query->fetchAll();
+        
         return $result;
     }
 
@@ -44,9 +48,15 @@ class Model extends \PDO
      *            过期时间
      * @return array $value
      */
-    protected function cache($key, $value = "", $expire = 300)
+    protected function cache($key, $value = "", $expire = "")
     {
-        //memcache 缓存
+        $expire = $expire ? $expire : intval($this->conf["cache"]["expire"]);
+        
+        if (! $this->conf["cache"]["open"] || ! $expire) {
+            return false;
+        }
+        
+        // memcache 缓存
         if ($this->conf["cache"]["type"] == "memcache") {
             $memcache = @new \Memcache();
             $rs = @$memcache->connect($this->conf["memcache"]["host"], $this->conf["memcache"]["port"]);
