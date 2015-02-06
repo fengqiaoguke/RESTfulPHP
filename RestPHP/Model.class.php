@@ -4,6 +4,9 @@ namespace RestPHP;
 class Model extends \PDO
 {
 
+    /**
+     * 继承了PDO的方法并通过配置文件链接数据库
+     */
     public function __construct()
     {
         $confPath = APP_PATH . "Conf/config.ini";
@@ -26,6 +29,11 @@ class Model extends \PDO
         }
     }
 
+    /**
+     * 查询sql
+     * @param unknown $sql
+     * @return multitype:
+     */    
     protected function select($sql)
     {
         $query = $this->query($sql);
@@ -132,6 +140,11 @@ class Model extends \PDO
         return $rs;
     }
 
+    /**
+     * 更新数据
+     * @param array $data
+     * @return boolean
+     */
     protected function update($data)
     {
         if (! $data) {
@@ -153,6 +166,10 @@ class Model extends \PDO
         return $rs;
     }
 
+    /**
+     * 删除数据
+     * @return boolean
+     */
     protected function delete()
     {
         if (! $this->_where) {
@@ -167,12 +184,21 @@ class Model extends \PDO
         return $rs;
     }
 
+    /**
+     * 设置查询条件
+     * @param string $str 查询条件,必须符合sql规范
+     * @return \RestPHP\Model
+     */
     protected function where($str)
     {
         $this->_where = $str;
         return $this;
     }
 
+    /**
+     * 统计
+     * @return int
+     */
     protected function count()
     {
         $sql = "select count(*) as num from " . $this->_table . " where " . $this->_where . " limit 1";
@@ -180,12 +206,21 @@ class Model extends \PDO
         return $result[0]["num"];
     }
 
+    /**
+     * 设置数据库表
+     * @param string $table 表名
+     * @return \RestPHP\Model
+     */
     protected function table($table)
     {
         $this->_table = $table;
         return $this;
     }
 
+    /**
+     * 获取一条数据
+     * @return array
+     */
     protected function get()
     {
         $sql = "select * from " . $this->_table . " where " . $this->_where . " limit 1";

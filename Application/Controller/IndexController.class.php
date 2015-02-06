@@ -11,9 +11,8 @@ class IndexController extends Controller
 {
 
     public function get()
-    {
-        echo "run:";
-        $blog = new BlogModel();
+    { 
+        $blog = new UserModel();
         $rs = $blog->search("1");
         print_r($rs);
     }
