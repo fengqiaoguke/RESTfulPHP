@@ -1,5 +1,5 @@
 <?php
-namespace RESTfulPHP;
+namespace RestPHP;
 
 class Controller
 {
@@ -25,7 +25,7 @@ class Controller
             $method = "get";
         }
         if (! method_exists($this, $method)) {
-            RESTfulPHP::error($method . "() method not exists");
+            RestPHP::error($method . "() method not exists");
         }
         $this->$method();
     }
@@ -144,6 +144,6 @@ class Controller
      */
     public function json($data, $status, $message)
     {
-        return RESTfulPHP::json($data, $status, $message);
+        return RestPHP::json($data, $status, $message);
     }
 } 

@@ -1,7 +1,7 @@
 <?php
 namespace Controller;
  
-use RESTfulPHP\Controller;
+use RestPHP\Controller;
 
 
 use Model\UserModel;

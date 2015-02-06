@@ -1,15 +1,15 @@
 <?php 
-use RESTfulPHP\RESTfulPHP;
+use RestPHP\RestPHP;
 //use Tools\Tools;
 define('APP_PATH', './Application/');
-include_once 'RESTfulPHP/RESTfulPHP.php';
+include_once 'RestPHP/RestPHP.php';
 //include_once '../~RESTful.min.php';
 
-//$app = new RESTfulPHP();
+//$app = new RestPHP();
 //$app->run();
 
 /*
-include_once 'RESTfulPHP/Tools.class.php';
+include_once 'RestPHP/Tools.class.php';
 $app = new Tools();
 $app->makeModel("blog");
 */

@@ -1,10 +1,10 @@
 <?php
-namespace RESTfulPHP;
+namespace RestPHP;
 
 
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 // error_reporting(0);
-class RESTfulPHP
+class RestPHP
 {
 
     public function __construct()
@@ -15,7 +15,7 @@ class RESTfulPHP
         include_once dirname(__FILE__) . '/Controller.class.php';
         include_once dirname(__FILE__) . '/Model.class.php';
         
-        spl_autoload_register("RESTfulPHP\RESTfulPHP::autoload");
+        spl_autoload_register("RestPHP\RestPHP::autoload");
     }
 
     public function run()
@@ -68,10 +68,10 @@ class RESTfulPHP
             require_once ($classpath);
         } else {
             $message = $classpath . " not exists ";
-            RESTfulPHP::error($message);
+            RestPHP::error($message);
         }
     }
 }
-$app = new RESTfulPHP();
+$app = new RestPHP();
 $app->run();
 ?>

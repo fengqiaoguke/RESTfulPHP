@@ -1,5 +1,5 @@
 <?php
-namespace RESTfulPHP;
+namespace RestPHP;
 
 class Model extends \PDO
 {
@@ -8,12 +8,12 @@ class Model extends \PDO
     {
         $confPath = APP_PATH . "Conf/config.ini";
         if (! $conf = parse_ini_file($confPath, true)) {
-            RESTfulPHP::error('Unable to open ' . $confPath . '.');
+            RestPHP::error('Unable to open ' . $confPath . '.');
         }
         try {
             parent::__construct($conf['database']['dsn'], $conf['database']['user'], $conf['database']['pass']);
         } catch (\Exception $e) {
-            RESTfulPHP::error("数据库链接失败:" . $e->getMessage()); 
+            RestPHP::error("数据库链接失败:" . $e->getMessage()); 
         }
         $this->conf = $conf;
         $this->_where = "";
@@ -51,7 +51,7 @@ class Model extends \PDO
             $memcache = @new \Memcache();
             $rs = @$memcache->connect($this->conf["memcache"]["host"], $this->conf["memcache"]["port"]);
             if (! $rs) {
-                RESTfulPHP::error("memcache链接失败!(如果要关闭memcache在config.ini把缓存host设为空)");
+                RestPHP::error("memcache链接失败!(如果要关闭memcache在config.ini把缓存host设为空)");
             }
             
             if ($value) {
@@ -104,7 +104,7 @@ class Model extends \PDO
     protected function add($data)
     {
         if (! $data) {
-            RESTfulPHP::error("更新数据不能空");
+            RestPHP::error("更新数据不能空");
         }
         foreach ($data as $k => $v) {
             $title .= "`" . $k . "`,";
@@ -125,10 +125,10 @@ class Model extends \PDO
     protected function update($data)
     {
         if (! $data) {
-            RESTfulPHP::error("更新数据不能空");
+            RestPHP::error("更新数据不能空");
         }
         if (! $this->_where) {
-            RESTfulPHP::error("更新条件不能空");
+            RestPHP::error("更新条件不能空");
         }
         foreach ($data as $k => $v) {
             $str .= "`" . $k . "`=:" . $k . ",";
@@ -146,7 +146,7 @@ class Model extends \PDO
     protected function delete()
     {
         if (! $this->_where) {
-            RESTfulPHP::error("更新条件不能空");
+            RestPHP::error("更新条件不能空");
         }
         
         $sql = "DELETE FROM {$this->_table}  WHERE " . $this->_where . ";";
