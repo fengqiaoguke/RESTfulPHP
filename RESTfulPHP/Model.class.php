@@ -1,19 +1,19 @@
 <?php
-namespace RESTful;
+namespace RESTfulPHP;
 
 class Model extends \PDO
 {
 
-    public function __construct()
+    protected  function __construct()
     {
         $confPath = APP_PATH . "Conf/config.ini";
         if (! $conf = parse_ini_file($confPath, true)) {
-            \RESTfulPHP::error('Unable to open ' . $confPath . '.');
+            RESTfulPHP::error('Unable to open ' . $confPath . '.');
         }
         try {
             parent::__construct($conf['database']['dsn'], $conf['database']['user'], $conf['database']['pass']);
         } catch (\Exception $e) {
-            \RESTfulPHP::error("数据库链接失败:".$e->getMessage());
+            RESTfulPHP::error("数据库链接失败:" . $e->getMessage()); 
         }
         $this->conf = $conf;
         $this->_where = "";
@@ -34,23 +34,64 @@ class Model extends \PDO
         return $result;
     }
 
-    protected function cache($key, $value = "", $time = 300)
+    /**
+     * 缓存
+     *
+     * @param string $key            
+     * @param string $value
+     *            存在则保存;null为删除
+     * @param number $expire
+     *            过期时间
+     * @return array $value
+     */
+    protected function cache($key, $value = "", $expire = 300)
     {
-        if (! $this->conf["memcache"]["host"]) {
-            return false;
-        }
-        $memcache = @new \Memcache();
-        $rs = @$memcache->connect($this->conf["memcache"]["host"], $this->conf["memcache"]["port"]);
-        if (! $rs) {
-            \RESTfulPHP::error("memcache链接失败!(如果要关闭memcache在config.ini把缓存host设为空)");
-        }
-        
-        if ($value) {
-            $memcache->set($key, $value, false, $time);
-        } elseif ($value === null) {
-            $memcache->delete($key);
+        //memcache 缓存
+        if ($this->conf["cache"]["type"] == "memcache") {
+            $memcache = @new \Memcache();
+            $rs = @$memcache->connect($this->conf["memcache"]["host"], $this->conf["memcache"]["port"]);
+            if (! $rs) {
+                RESTfulPHP::error("memcache链接失败!(如果要关闭memcache在config.ini把缓存host设为空)");
+            }
+            
+            if ($value) {
+                $memcache->set($key, $value, false, $expire);
+            } elseif ($value === null) {
+                $memcache->delete($key);
+            } else {
+                $value = $memcache->get($key);
+            }
         } else {
-            $value = $memcache->get($key);
+            // 文件缓存
+            $path = APP_PATH . "~data";
+            if (! file_exists($path)) {
+                mkdir($path, '0777');
+            }
+            $path .= "/cache";
+            if (! file_exists($path)) {
+                mkdir($path, '0777');
+            }
+            $_key = md5($key);
+            $path .= "/" . substr($_key, 0, 1);
+            if (! file_exists($path)) {
+                mkdir($path, '0777');
+            }
+            $file = $path . "/~" . $_key . ".txt";
+            if ($value) {
+                $expire = time() + $expire;
+                $context = $expire . ":" . json_encode($value);
+                file_put_contents($file, $context);
+            } elseif ($value === null) {
+                // unlink($file);
+            } else {
+                $_context = @file_get_contents($file);
+                $expire = substr($_context, 0, 10);
+                $context = substr($_context, 11);
+                if (time() > intval($expire)) {
+                    @unlink($file);
+                }
+                $value = json_decode($context, true);
+            }
         }
         return $value;
     }
@@ -63,7 +104,7 @@ class Model extends \PDO
     protected function add($data)
     {
         if (! $data) {
-            \RESTfulPHP::error("更新数据不能空");
+            RESTfulPHP::error("更新数据不能空");
         }
         foreach ($data as $k => $v) {
             $title .= "`" . $k . "`,";
@@ -84,10 +125,10 @@ class Model extends \PDO
     protected function update($data)
     {
         if (! $data) {
-            \RESTfulPHP::error("更新数据不能空");
+            RESTfulPHP::error("更新数据不能空");
         }
         if (! $this->_where) {
-            \RESTfulPHP::error("更新条件不能空");
+            RESTfulPHP::error("更新条件不能空");
         }
         foreach ($data as $k => $v) {
             $str .= "`" . $k . "`=:" . $k . ",";
@@ -105,7 +146,7 @@ class Model extends \PDO
     protected function delete()
     {
         if (! $this->_where) {
-            \RESTfulPHP::error("更新条件不能空");
+            RESTfulPHP::error("更新条件不能空");
         }
         
         $sql = "DELETE FROM {$this->_table}  WHERE " . $this->_where . ";";

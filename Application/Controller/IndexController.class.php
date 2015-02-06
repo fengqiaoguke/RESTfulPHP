@@ -1,18 +1,19 @@
 <?php
 namespace Controller;
-
+ 
 use RESTfulPHP\Controller;
-use Model\UserModel;
 
+
+use Model\UserModel;
+ 
 class IndexController extends Controller
 {
 
     public function get()
     {
-        $data["name"] = "aaaa";
-        $user = new UserModel();
-        $user->deleteInfo(1);
-        $rs = $user->getInfo(1);
+        echo "run:";
+        $blog = new UserModel();
+        $rs = $blog->getInfo(1);
         print_r($rs);
     }
 

@@ -1,4 +1,7 @@
 <?php
+namespace RESTfulPHP;
+
+
 error_reporting(E_ERROR | E_WARNING | E_PARSE);
 // error_reporting(0);
 class RESTfulPHP
@@ -8,25 +11,28 @@ class RESTfulPHP
     {
         $this->_route();
         
-        include_once dirname(__FILE__) . '/Model.class.php';
-        include_once dirname(__FILE__) . '/Controller.class.php';
         
-        spl_autoload_register("RESTfulPHP::autoload");
+        include_once dirname(__FILE__) . '/Controller.class.php';
+        include_once dirname(__FILE__) . '/Model.class.php';
+        
+        spl_autoload_register("RESTfulPHP\RESTfulPHP::autoload");
     }
 
     public function run()
-    { 
+    {
+       
         $m = $_GET["m"] ? $_GET["m"] : "index";
         $m = "Controller\\" . ucfirst(strtolower($m)) . "Controller";
         
         $obj = new $m();
     }
-    
+
     /**
      * 默认路由,截取第一个目录为controller,后面的传给$_GET
      */
-    private function _route(){
-        $qs = ltrim(str_replace($_SERVER[SCRIPT_NAME], "", $_SERVER[REQUEST_URI]), "/");
+    private function _route()
+    {
+        $qs = ltrim(str_replace($_SERVER[SCRIPT_NAME], "", $_SERVER[QUERY_STRING]), "/");
         if (strpos($qs, "/") !== false) {
             $arr = explode("/", $qs);
             if ($arr) {
@@ -38,6 +44,7 @@ class RESTfulPHP
                 }
             }
         }
+        
     }
 
     public static function json($data, $status, $message)
@@ -65,7 +72,6 @@ class RESTfulPHP
         }
     }
 }
-
 $app = new RESTfulPHP();
 $app->run();
 ?>

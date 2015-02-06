@@ -1,12 +1,47 @@
 <?php
-namespace Model;
- 
+namespace Tools;
 
-use RESTfulPHP\Model;
-class UserModel extends Model
+use RESTfulPHP\RESTfulPHP;
+
+class Tools
 {
 
-    protected $_table = "";
+    public function __construct()
+    {}
+
+    public function run()
+    {
+        echo 'tools';
+    }
+
+    /**
+     * 自动生成model
+     * 
+     * @param string $modelName
+     *            model名称
+     * @param string $table
+     *            对应数据库表名
+     * @return boolean
+     */
+    public function makeModel($modelName, $table = "")
+    {
+        if (! $modelName) {
+            RESTfulPHP::error($modelName . '不存在,跳过!');
+            return false;
+        }
+        $modelName = strtolower($modelName);
+        $modelName = preg_replace('/_([a-z])/e', "strtoupper($1)", $modelName);
+        
+        $modelName = ucfirst($modelName);
+        $context = '<?php
+namespace Model;
+
+use RESTfulPHP\Model;
+
+class ' . $modelName . 'Model extends Model
+{
+
+    protected $_table = "' . $table . '";
 
     /**
      * 搜索
@@ -156,5 +191,33 @@ class UserModel extends Model
         return $result;
     }
 }
+        
+    ';
+        $filepath = 'Model/' . $modelName . 'Model.class.php';
+        $this->_build($filepath, $context);
+    }
 
+    private function _build($filepath, $context)
+    {
+        $filepath = APP_PATH . '/' . $filepath;
+        $filepath = str_replace("//", "/", $filepath);
+        if (! file_exists(dirname($filepath))) {
+            $this->_mkdir(dirname($filepath));
+        }
+        if (file_exists($filepath)) {
+            RESTfulPHP::error($filepath . '已存在,跳过!', 'error');
+        } else {
+            file_put_contents($filepath, $context);
+            RESTfulPHP::error($filepath . '生成成功!', 'success');
+        }
+    }
 
+    private function _mkdir($dir, $mode = 0777)
+    {
+        if (is_dir($dir) || mkdir($dir, $mode))
+            return true;
+        if (! $this->_mkdir(dirname($dir), $mode))
+            return false;
+        return mkdir($dir, $mode);
+    }
+}
