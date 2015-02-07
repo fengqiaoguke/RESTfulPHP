@@ -22,8 +22,7 @@ class RestPHP
                 unset($_GET[$_SERVER[REQUEST_URI]]);
             }
         }
-        print_r($_GET);
-        exit();
+        
         // 包含controller和model
         include_once dirname(__FILE__) . '/Controller.class.php';
         include_once dirname(__FILE__) . '/Model.class.php';
@@ -43,7 +42,7 @@ class RestPHP
     }
 
     /**
-     * 解析路由
+     * 解析正则路由
      */
     private function _route()
     {
@@ -57,9 +56,11 @@ class RestPHP
         }
         $parseUrl = parse_url($_SERVER[REQUEST_URI]);
         $uri = ltrim(rtrim($parseUrl["path"], '/'), '/');
+        if(!$uri){
+            return false;
+        }
         foreach ($routes as $k => $v) {
-            
-            $str = preg_replace($k, $v, $uri);
+            $str = @preg_replace($k, $v, $uri);
             if (! $str) {
                 RestPHP::error("路由错误:" . $k . "=>" . $v);
             }
