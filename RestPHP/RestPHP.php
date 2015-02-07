@@ -6,14 +6,29 @@ class RestPHP
 
     public function __construct()
     {
-        //执行路由
-        $this->_route();
-        
-        //包含controller和model
+        // 执行正则路由
+        $route = $this->_route();
+        if (! $route) {
+            // 默认路由:切割/,第一个为controller,后面的依次为$_GET[n]参数 e.g. /user/100/order $_GET["m"]=>user;$_GET[2]=>100;$_GET[3]=>order;
+            $parse = parse_url($_SERVER[REQUEST_URI]);
+            $arr = explode("/", $parse["path"]);
+            if ($arr[1]) {
+                $_GET["m"] = $arr[1];
+                foreach ($arr as $k => $v) {
+                    if ($v) {
+                        $_GET[$k] = $v;
+                    }
+                }
+                unset($_GET[$_SERVER[REQUEST_URI]]);
+            }
+        }
+        print_r($_GET);
+        exit();
+        // 包含controller和model
         include_once dirname(__FILE__) . '/Controller.class.php';
         include_once dirname(__FILE__) . '/Model.class.php';
         
-        //自定义重载方法
+        // 自定义重载方法
         spl_autoload_register("RestPHP\RestPHP::autoload");
     }
 
@@ -28,29 +43,45 @@ class RestPHP
     }
 
     /**
-     * 默认路由,截取第一个目录为controller,后面的传给$_GET
+     * 解析路由
      */
     private function _route()
     {
-        $qs = ltrim(str_replace($_SERVER[SCRIPT_NAME], "", $_SERVER[QUERY_STRING]), "/");
-        if (strpos($qs, "/") !== false) {
-            $arr = explode("/", $qs);
-            if ($arr) {
-                $_GET["m"] = $arr[0];
-                foreach ($arr as $k => $v) {
-                    if ($v) {
-                        $_GET[$k] = $v;
-                    }
-                }
+        $path = APP_PATH . "/Conf/route.php";
+        if (! file_exists($path)) {
+            return false;
+        }
+        $routes = include_once $path;
+        if (! is_array($routes)) {
+            return false;
+        }
+        $parseUrl = parse_url($_SERVER[REQUEST_URI]);
+        $uri = ltrim(rtrim($parseUrl["path"], '/'), '/');
+        foreach ($routes as $k => $v) {
+            
+            $str = preg_replace($k, $v, $uri);
+            if (! $str) {
+                RestPHP::error("路由错误:" . $k . "=>" . $v);
+            }
+            if ($str != $uri) {
+                unset($_GET[$_SERVER[REQUEST_URI]]);
+                parse_str($str, $get);
+                $_GET = array_merge($get, $_GET);
+                return true;
             }
         }
+        return false;
     }
 
     /**
      * 输出json格式
-     * @param array $data 数据
-     * @param bool $status 状态值
-     * @param string $message 提示信息
+     *
+     * @param array $data
+     *            数据
+     * @param bool $status
+     *            状态值
+     * @param string $message
+     *            提示信息
      * @return string
      */
     public static function json($data, $status, $message)
@@ -63,7 +94,8 @@ class RestPHP
 
     /**
      * 输出json格式错误信息
-     * @param unknown $message
+     *
+     * @param unknown $message            
      */
     public static function error($message)
     {
@@ -73,7 +105,8 @@ class RestPHP
 
     /**
      * 自动载入
-     * @param unknown $class
+     *
+     * @param unknown $class            
      */
     public static function autoload($class)
     {

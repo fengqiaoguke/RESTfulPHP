@@ -6,13 +6,13 @@ RewriteEngine On
 #末尾加/
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_URI} /+[^\.]+$
-RewriteRule ^(.+[^/])$ %{REQUEST_URI}/ [R=301,L]
+#RewriteCond %{REQUEST_URI} /+[^\.]+$
+#RewriteRule ^(.+[^/])$ %{REQUEST_URI}/ [R=301,L]
 
 #去掉index.php
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^/?(.*)$ ?$1 [NC,QSA,L]
+RewriteRule ^/?(.*)$ index.php?/$1 [NC,QSA,L]
 
 
 
