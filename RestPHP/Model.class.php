@@ -1,7 +1,7 @@
 <?php
 namespace RestPHP;
 
-class Model extends \PDO
+class Model 
 {
 
     /**
@@ -14,7 +14,7 @@ class Model extends \PDO
             RestPHP::error('Unable to open ' . $confPath . '.');
         }
         try {
-            parent::__construct($conf['database']['dsn'], $conf['database']['user'], $conf['database']['pass']);
+            $this->db = new \PDO ($conf['database']['dsn'], $conf['database']['user'], $conf['database']['pass'], array(\PDO::ATTR_PERSISTENT => true));
         } catch (\Exception $e) {
             RestPHP::error("数据库链接失败:" . $e->getMessage());
         }
@@ -36,7 +36,7 @@ class Model extends \PDO
      */    
     protected function select($sql)
     {
-        $query = $this->query($sql);
+        $query =  $this->db->query($sql);
         if(!$query){
             RestPHP::error($sql." 查询出错!");
         }
@@ -132,7 +132,7 @@ class Model extends \PDO
         $value = rtrim($value, ",");
         
         $sql = "INSERT INTO {$this->_table} ({$title})VALUES ({$value});";
-        $sth = $this->prepare($sql);
+        $sth =  $this->db->prepare($sql);
         $rs = $sth->execute($data);
         if ($rs) {
             $rs = $this->lastInsertId();
@@ -159,7 +159,7 @@ class Model extends \PDO
         $str = rtrim($str, ",");
         
         $sql = "UPDATE {$this->_table} SET {$str} WHERE " . $this->_where . ";";
-        $sth = $this->prepare($sql);
+        $sth =  $this->db->prepare($sql);
         
         $rs = $sth->execute($data);
         
@@ -177,7 +177,7 @@ class Model extends \PDO
         }
         
         $sql = "DELETE FROM {$this->_table}  WHERE " . $this->_where . ";";
-        $sth = $this->prepare($sql);
+        $sth =  $this->db->prepare($sql);
         
         $rs = $sth->execute();
         
@@ -202,7 +202,7 @@ class Model extends \PDO
     protected function count()
     {
         $sql = "select count(*) as num from " . $this->_table . " where " . $this->_where . " limit 1";
-        $result = $this->select($sql);
+        $result =  $this->db->select($sql);
         return $result[0]["num"];
     }
 
