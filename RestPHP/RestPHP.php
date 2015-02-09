@@ -111,7 +111,7 @@ class RestPHP
      */
     public static function autoload($class)
     {
-        $classpath = APP_PATH . $class . ".class.php";
+        $classpath = str_replace("\\","/",APP_PATH . $class . ".class.php");
         if (file_exists($classpath)) {
             require_once ($classpath);
         } else {
