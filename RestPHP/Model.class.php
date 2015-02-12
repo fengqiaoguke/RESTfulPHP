@@ -1,7 +1,7 @@
 <?php
 namespace RestPHP;
 
-class Model 
+class Model
 {
 
     /**
@@ -11,10 +11,12 @@ class Model
     {
         $confPath = APP_PATH . "Conf/config.ini";
         if (! $conf = parse_ini_file($confPath, true)) {
-            RestPHP::error('Unable to open ' . $confPath . '.');
+            RestPHP::error('配置文件加载失败 ' . $confPath . '.');
         }
         try {
-            $this->db = new \PDO ($conf['database']['dsn'], $conf['database']['user'], $conf['database']['pass'], array(\PDO::ATTR_PERSISTENT => true));
+            $this->db = new \PDO($conf['database']['dsn'], $conf['database']['user'], $conf['database']['pass'], array(
+                \PDO::ATTR_PERSISTENT => true
+            ));
         } catch (\Exception $e) {
             RestPHP::error("数据库链接失败:" . $e->getMessage());
         }
@@ -31,14 +33,15 @@ class Model
 
     /**
      * 查询sql
-     * @param unknown $sql
+     * 
+     * @param unknown $sql            
      * @return multitype:
-     */    
+     */
     protected function select($sql)
     {
-        $query =  $this->db->query($sql);
-        if(!$query){
-            RestPHP::error($sql." 查询出错!");
+        $query = $this->db->query($sql);
+        if (! $query) {
+            RestPHP::error($sql . " 查询出错!");
         }
         $query->setFetchMode(\PDO::FETCH_ASSOC);
         $result = $query->fetchAll();
@@ -83,16 +86,16 @@ class Model
             // 文件缓存
             $path = APP_PATH . "~data";
             if (! file_exists($path)) {
-                mkdir($path, '0777');
+                mkdir($path, 0777, true);
             }
             $path .= "/cache";
             if (! file_exists($path)) {
-                mkdir($path, '0777');
+                mkdir($path, 0777, true);
             }
             $_key = md5($key);
             $path .= "/" . substr($_key, 0, 1);
             if (! file_exists($path)) {
-                mkdir($path, '0777');
+                mkdir($path, 0777, true);
             }
             $file = $path . "/~" . $_key . ".txt";
             if ($value) {
@@ -132,7 +135,7 @@ class Model
         $value = rtrim($value, ",");
         
         $sql = "INSERT INTO {$this->_table} ({$title})VALUES ({$value});";
-        $sth =  $this->db->prepare($sql);
+        $sth = $this->db->prepare($sql);
         $rs = $sth->execute($data);
         if ($rs) {
             $rs = $this->lastInsertId();
@@ -142,7 +145,8 @@ class Model
 
     /**
      * 更新数据
-     * @param array $data
+     * 
+     * @param array $data            
      * @return boolean
      */
     protected function update($data)
@@ -159,7 +163,7 @@ class Model
         $str = rtrim($str, ",");
         
         $sql = "UPDATE {$this->_table} SET {$str} WHERE " . $this->_where . ";";
-        $sth =  $this->db->prepare($sql);
+        $sth = $this->db->prepare($sql);
         
         $rs = $sth->execute($data);
         
@@ -168,6 +172,7 @@ class Model
 
     /**
      * 删除数据
+     * 
      * @return boolean
      */
     protected function delete()
@@ -177,7 +182,7 @@ class Model
         }
         
         $sql = "DELETE FROM {$this->_table}  WHERE " . $this->_where . ";";
-        $sth =  $this->db->prepare($sql);
+        $sth = $this->db->prepare($sql);
         
         $rs = $sth->execute();
         
@@ -186,7 +191,9 @@ class Model
 
     /**
      * 设置查询条件
-     * @param string $str 查询条件,必须符合sql规范
+     * 
+     * @param string $str
+     *            查询条件,必须符合sql规范
      * @return \RestPHP\Model
      */
     protected function where($str)
@@ -197,18 +204,21 @@ class Model
 
     /**
      * 统计
+     * 
      * @return int
      */
     protected function count()
     {
         $sql = "select count(*) as num from " . $this->_table . " where " . $this->_where . " limit 1";
-        $result =  $this->db->select($sql);
+        $result = $this->db->select($sql);
         return $result[0]["num"];
     }
 
     /**
      * 设置数据库表
-     * @param string $table 表名
+     * 
+     * @param string $table
+     *            表名
      * @return \RestPHP\Model
      */
     protected function table($table)
@@ -219,6 +229,7 @@ class Model
 
     /**
      * 获取一条数据
+     * 
      * @return array
      */
     protected function get()

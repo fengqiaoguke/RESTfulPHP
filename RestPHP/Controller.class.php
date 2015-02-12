@@ -9,30 +9,37 @@ class Controller
         'get',
         'post',
         'put',
-        'delete',
-        'patch',
-        'copy',
-        'move',
-        'options',
-        'head',
-        'propfind'
+        'delete'
     );
 
     public function __construct()
     {
+        //加载配置文件
+        $confPath = APP_PATH . "Conf/config.ini";
+        if (file_exists($confPath)) {
+            $this->conf = parse_ini_file($confPath, true);
+        }
+        
         $method = strtolower($_SERVER['REQUEST_METHOD']);
         if (! in_array($method, $this->allowMethod)) {
             $method = "get";
         }
+        
         if (! method_exists($this, $method)) {
             RestPHP::error($method . "() method not exists");
         }
+        
+        // 所有方法
+        if (method_exists($this, "any")) {
+            $this->any();
+        }
+        
         $this->$method();
     }
 
     /**
      * 设置Http头状态信息
-     * 
+     *
      * @param unknown $code            
      */
     protected function setHeadStatus($code)
@@ -134,7 +141,7 @@ class Controller
 
     /**
      * 输出json格式
-     * 
+     *
      * @param array $data
      *            内容
      * @param bool $status
